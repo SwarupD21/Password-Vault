@@ -1,0 +1,10 @@
+Django==4.2.27
+gunicorn
+psycopg2-binary
+dj-database-url
+python-dotenv
+whitenoise
+cryptography
+django-allauth
+requests
+PyJWT

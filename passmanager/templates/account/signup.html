@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+{% load i18n %}
+{% load socialaccount %}
+
+{% block title %}Sign Up | Password Vault{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background: radial-gradient(circle at top, #2c5364, #203a43, #0f2027);
+  }
+
+  .auth-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+    color: #fff;
+    animation: slideUp 0.9s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .form-control {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: #fff;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .form-control:focus {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .form-control::placeholder {
+    color: #ccc;
+  }
+
+  .error-text {
+    color: #ff9f9f;
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+
+  .auth-footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-top: 28px;
+  }
+
+  .auth-footer span {
+    color: #00d4ff;
+  }
+</style>
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="col-md-4 col-sm-10 auth-card p-4">
+
+    <h3 class="text-center mb-1">📝 Create Account</h3>
+    <p class="text-center text-light opacity-75 mb-4">
+      Secure your passwords with confidence
+    </p>
+
+    <form method="post" action="{% url 'account_signup' %}">
+      {% csrf_token %}
+
+      {{ form.non_field_errors }}
+
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="error-text">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-success w-100 mt-2">
+        Create Account
+      </button>
+    </form>
+
+    <hr class="my-3">
+
+    <a href="{% provider_login_url 'google' %}"
+       class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2">
+        <img src="https://developers.google.com/identity/images/g-logo.png"
+             width="18" alt="Google">
+        Continue with Google
+    </a>
+
+    <p class="text-center mt-3">
+      Already have an account?
+      <a href="{% url 'account_login' %}" class="text-info">Login</a>
+    </p>
+
+    <div class="auth-footer">
+      © 2026 <span>Password Vault</span> · Developed by <span>Swarup</span>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

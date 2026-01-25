@@ -1,0 +1,180 @@
+{% extends "layout.html" %}
+{% block title %}Password Vault{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --accent: #00d4ff;
+        --glass: rgba(255, 255, 255, 0.1);
+        --bg-dark: #0f2027;
+        --bg-mid: #203a43;
+        --bg-light: #2c5364;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+
+    /* HERO */
+    .hero {
+        min-height: 99vh;
+        background: radial-gradient(circle at top, var(--bg-light), var(--bg-mid), var(--bg-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        color: #fff;
+    }
+
+    .glass-card {
+        width: 100%;
+        max-width: 560px;
+        background: var(--glass);
+        backdrop-filter: blur(16px);
+        border-radius: 22px;
+        padding: 40px 30px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+        animation: fadeSlide 1.1s ease;
+        text-align: center;
+    }
+
+    @keyframes fadeSlide {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .app-title {
+        font-size: clamp(1.9rem, 4vw, 2.5rem);
+        font-weight: 700;
+    }
+
+    .app-title span {
+        color: var(--accent);
+    }
+
+    .subtitle {
+        opacity: 0.9;
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+    }
+
+    /* BUTTONS */
+    .btn-main {
+        min-width: 140px;
+        border-radius: 30px;
+        padding: 10px 22px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-main:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0,212,255,0.35);
+    }
+
+    /* FEATURES */
+    .features {
+        margin-top: 35px;
+    }
+
+    .feature {
+        padding: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .feature:hover {
+        transform: translateY(-6px);
+    }
+
+    .feature-icon {
+        font-size: 2.2rem;
+        margin-bottom: 6px;
+        filter: drop-shadow(0 0 6px rgba(0,212,255,0.4));
+    }
+
+    .feature-text {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    /* EXTRA INFO */
+    .extra-info {
+        margin-top: 30px;
+        font-size: 0.8rem;
+        opacity: 0.85;
+    }
+
+    /* FOOTER */
+    .footer {
+        background: #0b1a1f;
+        color: #aaa;
+        text-align: center;
+        padding: 15px 10px;
+        font-size: 0.75rem;
+    }
+
+    .footer span {
+        color: var(--accent);
+        font-weight: 500;
+    }
+
+    @media (max-width: 576px) {
+        .glass-card {
+            padding: 30px 20px;
+        }
+    }
+</style>
+
+<!-- HERO SECTION -->
+<div class="hero">
+    <div class="glass-card">
+
+        <h1 class="app-title mb-2">
+            🔐 <span>Password Vault</span>
+        </h1>
+
+        <p class="subtitle">
+            A secure, encrypted password manager built with Django.<br>
+            <strong>Your passwords. Your control.</strong>
+        </p>
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap mb-3">
+            {% if user.is_authenticated %}
+                <a href="{% url 'vault_view' %}" class="btn btn-primary btn-main">Go to Vault</a>
+                <a href="{% url 'account_logout' %}" class="btn btn-outline-light btn-main">Logout</a>
+            {% else %}
+                <a href="{% url 'account_login' %}" class="btn btn-primary btn-main">Login</a>
+                <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-main">Register</a>
+            {% endif %}
+        </div>
+
+        <!-- FEATURES -->
+        <div class="features row">
+            <div class="col-4 feature">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-text">Encrypted Storage</div>
+            </div>
+            <div class="col-4 feature">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-text">Fast & Secure</div>
+            </div>
+            <div class="col-4 feature">
+                <div class="feature-icon">🧠</div>
+                <div class="feature-text">User Controlled</div>
+            </div>
+        </div>
+
+        <!-- EXTRA CONTENT -->
+        <div class="extra-info">
+            🔑 End-to-end encryption · 🛡️ No plaintext storage · 🚀 Built for learning & security
+        </div>
+
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2026 Password Vault · Developed by <span>Swarup</span><br>
+    All rights reserved.
+</div>
+
+{% endblock %}

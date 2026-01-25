@@ -1,0 +1,234 @@
+{% extends "layout.html" %}
+{% block title %}Password Vault{% endblock %}
+{% block content %}
+
+<style>
+  :root {
+    --accent: #00d4ff;
+  }
+
+  body {
+    background: linear-gradient(180deg, #0f2027, #203a43);
+  }
+
+  .vault-header {
+    animation: fadeDown 0.8s ease;
+  }
+
+  @keyframes fadeDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .vault-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    color: #fff;
+  }
+
+  .vault-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+  }
+
+  .form-control,
+  textarea {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #fff;
+  }
+
+  .form-control::placeholder {
+    color: #ccc;
+  }
+
+  .form-control:focus,
+  textarea:focus {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .password-item {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 14px;
+    padding: 16px;
+    color: #000;
+    transition: all 0.25s ease;
+  }
+
+  .password-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  .profile-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 8px 14px;
+    border-radius: 40px;
+    backdrop-filter: blur(8px);
+  }
+
+  .profile-box img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    object-fit: cover;
+  }
+
+  .profile-box .username {
+    color: #fff;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .profile-box small {
+    color: #ccc;
+    font-size: 0.75rem;
+  }
+
+  .footer {
+    margin-top: 60px;
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #bbb;
+  }
+
+  .footer span {
+    color: var(--accent);
+  }
+
+  @media (max-width: 576px) {
+    .action-buttons a {
+      margin-top: 8px;
+    }
+  }
+</style>
+
+<div class="container mt-4">
+
+  <!-- HEADER -->
+  <div class="vault-header d-flex justify-content-between align-items-center flex-wrap mb-4">
+    <h2 class="text-white">🔐 Password Vault</h2>
+
+    {% if user.is_authenticated %}
+    <div class="d-flex align-items-center gap-3 mt-2 mt-md-0">
+
+      <div class="profile-box">
+        {% with google=user.socialaccount_set.first %}
+          {% if google and google.extra_data.picture %}
+            <img src="{{ google.extra_data.picture }}" alt="Profile">
+          {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=00d4ff&color=000">
+          {% endif %}
+        {% endwith %}
+
+
+        <div class="username">
+          {{ user.username }}<br>
+          <small>Vault Owner</small>
+        </div>
+      </div>
+
+      <form action="{% url 'account_logout' %}" method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm px-3">Logout</button>
+      </form>
+
+    </div>
+    {% endif %}
+  </div>
+
+  <p class="text-light opacity-75 mb-4">
+    Securely store and manage your credentials
+  </p>
+
+  <!-- ADD PASSWORD -->
+  <div class="card vault-card shadow-sm mb-5">
+    <div class="card-header">➕ Add New Password</div>
+    <div class="card-body">
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">Service / Website</label>
+          <input type="text" name="name" class="form-control" placeholder="e.g. GitHub" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Username / Email</label>
+          <input type="text" name="login_identifier" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <div class="input-group">
+            <input type="password" name="encrypted_password" id="passwordInput" class="form-control" required>
+            <button type="button" class="btn btn-outline-light" onclick="togglePassword()">👁️</button>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-control" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary px-4">Save Password</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SAVED PASSWORDS -->
+  <div class="card vault-card shadow-sm">
+    <div class="card-header">📂 Your Saved Passwords</div>
+    <div class="card-body">
+      {% if passmanage %}
+      <ul class="list-group list-group-flush">
+        {% for entry in passmanage %}
+        <li class="list-group-item bg-transparent border-0 password-item mb-3">
+          <strong class="fs-4 text-white">{{ entry.name }}</strong><br>
+          <span class="text-white">Login:  {{ entry.login_identifier }}</span><br>
+          <span class="text-white">{{ entry.notes }}</span><br>
+          <small class="text-white">Added on {{ entry.created_at }}</small>
+
+          <div class="action-buttons mt-3 d-flex gap-2 flex-wrap">
+            <a href="{% url 'show_password' entry.id %}" class="btn btn-sm btn-outline-info">👁 Show</a>
+            <a href="{% url 'edit_pass' entry.id %}" class="btn btn-sm btn-outline-warning">✏ Edit</a>
+            <a href="{% url 'pass_delete' entry.id %}" class="btn btn-sm btn-outline-danger">🗑 Delete</a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-light opacity-75">No passwords saved yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  © 2026 <span>Password Vault</span> · Developed by <span>Swarup</span><br>
+  All rights reserved.
+</div>
+
+<script>
+  function togglePassword() {
+    const input = document.getElementById("passwordInput");
+    input.type = input.type === "password" ? "text" : "password";
+  }
+</script>
+
+{% endblock %}
